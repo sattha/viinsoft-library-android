@@ -1,0 +1,1 @@
+include ':app', ':viinsoft-clean-arch', ':viinsoft-dagger2'
