@@ -6,8 +6,9 @@ import androidx.lifecycle.ViewModelProvider
 import javax.inject.Inject
 import javax.inject.Provider
 
-class DaggerViewModelFactory @Inject constructor(
-    private val creators: Map<Class<out ViewModel>, Provider<ViewModel>>
+class DaggerViewModelFactory
+@Inject constructor(
+    private val creators: Map<Class<out ViewModel>, @JvmSuppressWildcards Provider<ViewModel>>
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
