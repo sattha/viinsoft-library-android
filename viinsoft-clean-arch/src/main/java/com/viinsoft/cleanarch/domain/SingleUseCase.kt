@@ -21,7 +21,7 @@ abstract class SingleUseCase<P, R>(scheduler: SchedulerProvider) : RxUseCase<P, 
      * @param parameters [P] object to use in the use case
      * @return [<] source to be executed.
      */
-    protected abstract fun execute(parameters: P): Single<R?>
+    protected abstract fun execute(parameters: P): Single<R>
 
     override fun invoke(parameters: P, result: MutableLiveData<Result<R>>) {
 
