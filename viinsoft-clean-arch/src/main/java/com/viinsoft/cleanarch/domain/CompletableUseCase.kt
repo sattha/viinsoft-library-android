@@ -21,9 +21,9 @@ abstract class CompletableUseCase<P>(scheduler: SchedulerProvider) : RxUseCase<P
      * @param parameters [P] object to use in the use case
      * @return [Completable] source to be executed.
      */
-    protected abstract fun execute(parameters: P): Completable
+    protected abstract fun execute(parameters: P?): Completable
 
-    override fun invoke(parameters: P, result: MutableLiveData<Result<Void>>) {
+    override fun invoke(parameters: P?, result: MutableLiveData<Result<Void>>) {
 
         if (observable != null) observable!!.postValue(Result.loading(null))
         result.postValue(Result.loading(null))
@@ -40,7 +40,7 @@ abstract class CompletableUseCase<P>(scheduler: SchedulerProvider) : RxUseCase<P
             })
     }
 
-    override fun invokeSync(parameters: P): Result<Void> {
+    override fun invokeSync(parameters: P?): Result<Void> {
         val e = execute(parameters).blockingGet()
         return if (e == null) {
             Result.success(null)

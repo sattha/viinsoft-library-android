@@ -21,9 +21,9 @@ abstract class MaybeUseCase<P, R>(scheduler: SchedulerProvider) : RxUseCase<P, R
      * @param parameters [P] object to use in the use case
      * @return [<] source to be executed.
      */
-    protected abstract fun execute(parameters: P): Maybe<R>
+    protected abstract fun execute(parameters: P?): Maybe<R>
 
-    override fun invoke(parameters: P, result: MutableLiveData<Result<R>>) {
+    override fun invoke(parameters: P?, result: MutableLiveData<Result<R>>) {
 
         if (observable != null) observable!!.postValue(Result.loading(null))
         result.postValue(Result.loading(null))
@@ -44,7 +44,7 @@ abstract class MaybeUseCase<P, R>(scheduler: SchedulerProvider) : RxUseCase<P, R
     }
 
 
-    override fun invokeSync(parameters: P): Result<R> {
+    override fun invokeSync(parameters: P?): Result<R> {
         return try {
             Result.success(execute(parameters).blockingGet())
         } catch (e: RuntimeException) {
