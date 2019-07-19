@@ -46,7 +46,7 @@ open class Result<R> private constructor() {
             return result
         }
 
-        fun <T> error(exception: Exception, nullData: T?): Result<T> {
+        fun <T> error(exception: Exception): Result<T> {
             val result = Result<T>()
             result.data = null
             result.exception = exception
@@ -55,7 +55,7 @@ open class Result<R> private constructor() {
             return result
         }
 
-        fun <T> loading(nullData: T?): Result<T> {
+        fun <T> loading(): Result<T> {
             val result = Result<T>()
             result.data = null
             result.exception = null

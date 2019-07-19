@@ -1,7 +1,6 @@
 package com.viinsoft.cleanarch.domain
 
 
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import com.viinsoft.cleanarch.helper.SchedulerProvider
 import com.viinsoft.cleanarch.model.Result
@@ -12,10 +11,9 @@ import java.util.*
 /**
  * Executes business logic synchronously or asynchronously using a [Scheduler] from [Observable].
  */
-abstract class ObservableUseCase<P, R>(scheduler: SchedulerProvider) : RxUseCase<P, R>(scheduler), Mediator<R> {
+abstract class ObservableUseCase<P, R>(scheduler: SchedulerProvider) : RxUseCase<P, R>(scheduler) {
 
     private var disposable: Disposable? = null
-    private var observable: MediatorLiveData<Result<R>>? = null
 
     /**
      * An observable use-case to be executed.
@@ -27,18 +25,14 @@ abstract class ObservableUseCase<P, R>(scheduler: SchedulerProvider) : RxUseCase
 
     override fun invoke(parameters: P?, result: MutableLiveData<Result<R>>) {
 
-        if (observable != null) observable!!.postValue(Result.loading(null))
-        result.postValue(Result.loading(null))
-
         disposable = execute(parameters)
+            .doOnSubscribe { result.postValue(Result.loading()) }
             .subscribeOn(scheduler.io())
             .observeOn(scheduler.ui())
             .subscribe({ r ->
-                if (observable != null) observable!!.postValue(Result.success(r))
                 result.postValue(Result.success(r))
             }, { e ->
-                if (observable != null) observable!!.postValue(Result.error(e as Exception, null))
-                result.postValue(Result.error(e as Exception, null))
+                result.postValue(Result.error(e as Exception))
             })
 
     }
@@ -48,16 +42,12 @@ abstract class ObservableUseCase<P, R>(scheduler: SchedulerProvider) : RxUseCase
             Result.success(execute(parameters).blockingFirst())
         } catch (e: NoSuchElementException) {
             // if blockingFirst() it emits no items
-            Result.error(e, null)
+            Result.error(e)
         } catch (e: Exception) {
-            Result.error(e, null)
+            Result.error(e)
         }
 
     }
 
     override fun getDisposable(): Disposable? = disposable
-
-    override fun observe(observable: MediatorLiveData<Result<R>>) {
-        this.observable = observable
-    }
 }
