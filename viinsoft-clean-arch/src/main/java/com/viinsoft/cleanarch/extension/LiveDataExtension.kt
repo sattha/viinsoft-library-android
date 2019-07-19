@@ -9,6 +9,33 @@ fun <X, Y> LiveData<X>.transform(block: (X) -> (Y)): LiveData<Y> {
     return Transformations.map(this, block)
 }
 
+fun LiveData<Result<*>>.onLoad(): LiveData<Boolean> {
+
+    val filteredLiveData = MediatorLiveData<Boolean>()
+
+    filteredLiveData.addSource(this) {
+        filteredLiveData.value = it.isLoading
+    }
+
+    return filteredLiveData
+}
+
+fun <T> LiveData<Result<T>>.onSuccess(): LiveData<T> {
+
+    val filteredLiveData = MediatorLiveData<T>()
+
+    filteredLiveData.addSource(this) {
+        if (it.isLoading)
+            return@addSource
+
+        if (it.isSuccess) {
+            filteredLiveData.value = it.data
+        }
+    }
+
+    return filteredLiveData
+}
+
 fun <T> LiveData<Result<T>>.onSuccessWhen(block: (T) -> Boolean): LiveData<T> {
 
     val filteredLiveData = MediatorLiveData<T>()
@@ -28,18 +55,7 @@ fun <T> LiveData<Result<T>>.onSuccessWhen(block: (T) -> Boolean): LiveData<T> {
     return filteredLiveData
 }
 
-fun LiveData<Result<*>>.observeLoad(): LiveData<Boolean> {
-
-    val filteredLiveData = MediatorLiveData<Boolean>()
-
-    filteredLiveData.addSource(this) {
-        filteredLiveData.value = it.isLoading
-    }
-
-    return filteredLiveData
-}
-
-fun LiveData<Result<*>>.observeFailure(): LiveData<Exception> {
+fun LiveData<Result<*>>.onFailure(): LiveData<Exception> {
 
     val filteredLiveData = MediatorLiveData<Exception>()
 
@@ -54,9 +70,29 @@ fun LiveData<Result<*>>.observeFailure(): LiveData<Exception> {
     return filteredLiveData
 }
 
-fun <T> LiveData<Result<T>>.observe(onLoadChange: MediatorLiveData<Boolean>?,
-                                    onSuccess: MediatorLiveData<T>?,
-                                    onFailure: MediatorLiveData<Exception>?) {
+fun LiveData<Result<*>>.onFailureWhen(block: (Exception) -> Boolean): LiveData<Exception> {
+
+    val filteredLiveData = MediatorLiveData<Exception>()
+
+    filteredLiveData.addSource(this) {
+        if (it.isLoading)
+            return@addSource
+
+        if (!it.isSuccess) {
+            it.exception
+                ?.let { ex -> block.invoke(ex) }
+                ?.also { isInterested -> if (isInterested) filteredLiveData.value = it.exception }
+        }
+    }
+
+    return filteredLiveData
+}
+
+fun <T> LiveData<Result<T>>.observe(
+    onLoadChange: MediatorLiveData<Boolean>?,
+    onSuccess: MediatorLiveData<T>?,
+    onFailure: MediatorLiveData<Exception>?
+) {
 
     onLoadChange?.addSource(this) {
         onLoadChange.value = it.isLoading
