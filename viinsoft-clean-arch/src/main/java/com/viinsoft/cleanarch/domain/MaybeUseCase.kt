@@ -9,7 +9,7 @@ import io.reactivex.disposables.Disposable
 /**
  * Executes business logic synchronously or asynchronously using a [Scheduler] from Maybe [Observable].
  */
-abstract class MaybeUseCase<P, R>(scheduler: SchedulerProvider) : RxUseCase<P, R>(scheduler) {
+abstract class MaybeUseCase<P, R>(scheduler: SchedulerProvider) : RxUseCase<P, R?>(scheduler) {
 
     private var disposable: Disposable? = null
 
@@ -21,7 +21,7 @@ abstract class MaybeUseCase<P, R>(scheduler: SchedulerProvider) : RxUseCase<P, R
      */
     protected abstract fun execute(parameters: P?): Maybe<R>
 
-    override fun invoke(parameters: P?, result: MutableLiveData<Result<R>>) {
+    override fun invoke(parameters: P?, result: MutableLiveData<Result<R?>>) {
 
         disposable = execute(parameters)
             .doOnSubscribe { result.postValue(Result.loading()) }
@@ -37,7 +37,7 @@ abstract class MaybeUseCase<P, R>(scheduler: SchedulerProvider) : RxUseCase<P, R
     }
 
 
-    override fun invokeSync(parameters: P?): Result<R> {
+    override fun invokeSync(parameters: P?): Result<R?> {
         return try {
             Result.success(execute(parameters).blockingGet())
         } catch (e: RuntimeException) {
