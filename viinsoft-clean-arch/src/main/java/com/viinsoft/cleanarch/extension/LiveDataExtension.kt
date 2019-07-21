@@ -5,8 +5,12 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Transformations
 import com.viinsoft.cleanarch.model.Result
 
-fun <X, Y> LiveData<X>.transform(block: (X) -> (Y)): LiveData<Y> {
+fun <X, Y> LiveData<X>.map(block: (X) -> (Y)): LiveData<Y> {
     return Transformations.map(this, block)
+}
+
+fun <X, Y> LiveData<X>.switchMap(block: (X) -> (LiveData<Y>)): LiveData<Y> {
+    return Transformations.switchMap(this, block)
 }
 
 fun LiveData<Result<*>>.onLoad(): LiveData<Boolean> {
