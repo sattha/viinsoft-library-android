@@ -13,7 +13,7 @@ fun <X, Y> LiveData<X>.switchMap(block: (X) -> (LiveData<Y>)): LiveData<Y> {
     return Transformations.switchMap(this, block)
 }
 
-fun LiveData<Result<*>>.onLoad(): LiveData<Boolean> {
+fun <T> LiveData<Result<T>>.onLoad(): LiveData<Boolean> {
 
     val filteredLiveData = MediatorLiveData<Boolean>()
 
@@ -59,7 +59,7 @@ fun <T> LiveData<Result<T>>.onSuccessWhen(block: (T) -> Boolean): LiveData<T> {
     return filteredLiveData
 }
 
-fun LiveData<Result<*>>.onFailure(): LiveData<Exception> {
+fun <T> LiveData<Result<T>>.onFailure(): LiveData<Exception> {
 
     val filteredLiveData = MediatorLiveData<Exception>()
 
@@ -74,7 +74,7 @@ fun LiveData<Result<*>>.onFailure(): LiveData<Exception> {
     return filteredLiveData
 }
 
-fun LiveData<Result<*>>.onFailureWhen(block: (Exception) -> Boolean): LiveData<Exception> {
+fun <T> LiveData<Result<T>>.onFailureWhen(block: (Exception) -> Boolean): LiveData<Exception> {
 
     val filteredLiveData = MediatorLiveData<Exception>()
 
