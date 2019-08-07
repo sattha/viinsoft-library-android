@@ -93,28 +93,24 @@ fun <T> LiveData<Result<T>>.onFailureWhen(block: (Exception) -> Boolean): LiveDa
 }
 
 fun <T> LiveData<Result<T>>.observe(
-    onLoadChange: MediatorLiveData<Boolean>?,
-    onSuccess: MediatorLiveData<T>?,
-    onFailure: MediatorLiveData<Exception>?
+    onLoadChange: (Boolean) -> Unit,
+    onSuccess: (T?) -> Unit,
+    onFailure: (Exception) -> Unit
 ) {
 
-    onLoadChange?.addSource(this) {
-        onLoadChange.value = it.isLoading
-    }
+    val observe = MediatorLiveData<Result<T>>()
 
-    onSuccess?.addSource(this) {
-        if (it.isLoading)
-            return@addSource
-
-        if (it.isSuccess)
-            onSuccess.value = it.data
-    }
-
-    onFailure?.addSource(this) {
-        if (it.isLoading)
-            return@addSource
-
-        if (!it.isLoading)
-            onFailure.value = it.exception
+    observe.addSource(this) {
+        when {
+            it.isLoading -> onLoadChange(it.isLoading)
+            it.isSuccess -> {
+                onSuccess(it.data)
+                onLoadChange(it.isLoading)
+            }
+            else -> {
+                onFailure(it.exception ?: Exception("no exception define (default from extension"))
+                onLoadChange(it.isLoading)
+            }
+        }
     }
 }
