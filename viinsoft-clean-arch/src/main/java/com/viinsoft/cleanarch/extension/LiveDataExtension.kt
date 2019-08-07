@@ -96,7 +96,7 @@ fun <T> LiveData<Result<T>>.observe(
     onLoadChange: (Boolean) -> Unit,
     onSuccess: (T?) -> Unit,
     onFailure: (Exception) -> Unit
-) {
+): LiveData<Result<T>> {
 
     val observe = MediatorLiveData<Result<T>>()
 
@@ -113,4 +113,6 @@ fun <T> LiveData<Result<T>>.observe(
             }
         }
     }
+
+    return observe
 }
