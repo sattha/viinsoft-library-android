@@ -24,7 +24,7 @@ abstract class RxUseCase<P, R>(val scheduler: SchedulerProvider) {
      * @param parameters additional parameters for using in the execute function's use case.
      * @param result     callback MutableLiveData<Result></Result><R>> post value back to the view.
     </R> */
-    abstract fun invoke(parameters: P? = null, result: MutableLiveData<Result<R>>)
+    abstract fun invoke(parameters: P, result: MutableLiveData<Result<R>>)
 
     /**
      * execute the use case synchronously.
@@ -32,7 +32,7 @@ abstract class RxUseCase<P, R>(val scheduler: SchedulerProvider) {
      * @param parameters additional parameters for using in the execute function's use case.
      * @return [<] value.
      */
-    abstract fun invokeSync(parameters: P? = null): Result<R>
+    abstract fun invokeSync(parameters: P): Result<R>
 
     /**
      * Cancel the execution of the use case.

@@ -9,7 +9,7 @@ import io.reactivex.disposables.Disposable
 /**
  * Executes business logic synchronously or asynchronously using a [Scheduler] from Complete [Observable].
  */
-abstract class CompletableUseCase<P>(scheduler: SchedulerProvider) : RxUseCase<P, Unit?>(scheduler){
+abstract class CompletableUseCase<P>(scheduler: SchedulerProvider) : RxUseCase<P, Unit>(scheduler){
 
     private var disposable: Disposable? = null
 
@@ -19,9 +19,9 @@ abstract class CompletableUseCase<P>(scheduler: SchedulerProvider) : RxUseCase<P
      * @param parameters [P] object to use in the use case
      * @return [Completable] source to be executed.
      */
-    protected abstract fun execute(parameters: P?): Completable
+    protected abstract fun execute(parameters: P): Completable
 
-    override fun invoke(parameters: P?, result: MutableLiveData<Result<Unit?>>) {
+    override fun invoke(parameters: P, result: MutableLiveData<Result<Unit>>) {
 
         disposable = execute(parameters)
             .doOnSubscribe { result.postValue(Result.loading()) }
@@ -34,7 +34,7 @@ abstract class CompletableUseCase<P>(scheduler: SchedulerProvider) : RxUseCase<P
             })
     }
 
-    override fun invokeSync(parameters: P?): Result<Unit?> {
+    override fun invokeSync(parameters: P): Result<Unit> {
         val e = execute(parameters).blockingGet()
         return if (e == null) {
             Result.success(null)

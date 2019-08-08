@@ -21,9 +21,9 @@ abstract class FlowableUseCase<P, R>(scheduler: SchedulerProvider) : RxUseCase<P
      * @param parameters [P] object to use in the use case
      * @return [<] source to be executed.
      */
-    protected abstract fun execute(parameters: P?): Flowable<R>
+    protected abstract fun execute(parameters: P): Flowable<R>
 
-    override fun invoke(parameters: P?, result: MutableLiveData<Result<R>>) {
+    override fun invoke(parameters: P, result: MutableLiveData<Result<R>>) {
 
         disposable = execute(parameters)
             .doOnSubscribe { result.postValue(Result.loading()) }
@@ -36,7 +36,7 @@ abstract class FlowableUseCase<P, R>(scheduler: SchedulerProvider) : RxUseCase<P
             })
     }
 
-    override fun invokeSync(parameters: P?): Result<R> {
+    override fun invokeSync(parameters: P): Result<R> {
         return try {
             Result.success(execute(parameters).blockingFirst())
         } catch (e: NoSuchElementException) {
