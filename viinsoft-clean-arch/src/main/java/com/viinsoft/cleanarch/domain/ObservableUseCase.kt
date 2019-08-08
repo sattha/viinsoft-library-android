@@ -21,9 +21,9 @@ abstract class ObservableUseCase<P, R>(scheduler: SchedulerProvider) : RxUseCase
      * @param parameters [P] object to use in the use case
      * @return [<] source to be executed.
      */
-    protected abstract fun execute(parameters: P?): Observable<R>
+    protected abstract fun execute(parameters: P): Observable<R>
 
-    override fun invoke(parameters: P?, result: MutableLiveData<Result<R>>) {
+    override fun invoke(parameters: P, result: MutableLiveData<Result<R>>) {
 
         disposable = execute(parameters)
             .doOnSubscribe { result.postValue(Result.loading()) }
@@ -37,7 +37,7 @@ abstract class ObservableUseCase<P, R>(scheduler: SchedulerProvider) : RxUseCase
 
     }
 
-    override fun invokeSync(parameters: P?): Result<R> {
+    override fun invokeSync(parameters: P): Result<R> {
         return try {
             Result.success(execute(parameters).blockingFirst())
         } catch (e: NoSuchElementException) {
