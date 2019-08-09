@@ -2,7 +2,7 @@ package com.viinsoft.cleanarch.domain
 
 import androidx.lifecycle.MutableLiveData
 import com.viinsoft.cleanarch.helper.SchedulerProvider
-import com.viinsoft.cleanarch.model.Result
+import com.viinsoft.cleanarch.model.UseCaseState
 import io.reactivex.Single
 import io.reactivex.disposables.Disposable
 
@@ -21,24 +21,37 @@ abstract class SingleUseCase<P, R>(scheduler: SchedulerProvider) : RxUseCase<P, 
      */
     protected abstract fun execute(parameters: P): Single<R>
 
-    override fun invoke(parameters: P, result: MutableLiveData<Result<R>>) {
+    override fun invoke(parameters: P, result: MutableLiveData<UseCaseState<R>>) {
 
         disposable = execute(parameters)
-            .doOnSubscribe { result.postValue(Result.loading()) }
+            .doOnSubscribe { result.postValue(UseCaseState.LoadContent) }
             .subscribeOn(scheduler.io())
             .observeOn(scheduler.ui())
             .subscribe({ data ->
-                result.postValue(Result.success(data))
+                result.postValue(UseCaseState.Complete(data))
             }, { e ->
-                result.postValue(Result.error(e as Exception))
+                result.postValue(UseCaseState.Error(e))
             })
     }
 
-    override fun invokeSync(parameters: P): Result<R> {
+    override fun invoke(parameters: P, result: (UseCaseState<R>) -> Unit) {
+
+        disposable = execute(parameters)
+            .doOnSubscribe { result.invoke(UseCaseState.LoadContent) }
+            .subscribeOn(scheduler.io())
+            .observeOn(scheduler.ui())
+            .subscribe({ data ->
+                result.invoke(UseCaseState.Complete(data))
+            }, { e ->
+                result.invoke(UseCaseState.Error(e))
+            })
+    }
+
+    override fun invokeSync(parameters: P): UseCaseState<R> {
         return try {
-            Result.success(execute(parameters).blockingGet())
+            UseCaseState.Complete(execute(parameters).blockingGet())
         } catch (e: RuntimeException) {
-            Result.error(e)
+            UseCaseState.Error(e)
         }
     }
 

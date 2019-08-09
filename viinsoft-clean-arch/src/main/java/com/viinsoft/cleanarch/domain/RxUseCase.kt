@@ -2,7 +2,7 @@ package com.viinsoft.cleanarch.domain
 
 import androidx.lifecycle.MutableLiveData
 import com.viinsoft.cleanarch.helper.SchedulerProvider
-import com.viinsoft.cleanarch.model.Result
+import com.viinsoft.cleanarch.model.UseCaseState
 import io.reactivex.disposables.Disposable
 
 /**
@@ -24,7 +24,15 @@ abstract class RxUseCase<P, R>(val scheduler: SchedulerProvider) {
      * @param parameters additional parameters for using in the execute function's use case.
      * @param result     callback MutableLiveData<Result></Result><R>> post value back to the view.
     </R> */
-    abstract fun invoke(parameters: P, result: MutableLiveData<Result<R>>)
+    abstract fun invoke(parameters: P, result: MutableLiveData<UseCaseState<R>>)
+
+    /**
+     * execute the use case asynchronously.
+     *
+     * @param parameters additional parameters for using in the execute function's use case.
+     * @param result     callback without live data
+    </R> */
+    abstract fun invoke(parameters: P, result: (UseCaseState<R>) -> Unit)
 
     /**
      * execute the use case synchronously.
@@ -32,7 +40,7 @@ abstract class RxUseCase<P, R>(val scheduler: SchedulerProvider) {
      * @param parameters additional parameters for using in the execute function's use case.
      * @return [<] value.
      */
-    abstract fun invokeSync(parameters: P): Result<R>
+    abstract fun invokeSync(parameters: P): UseCaseState<R>
 
     /**
      * Cancel the execution of the use case.

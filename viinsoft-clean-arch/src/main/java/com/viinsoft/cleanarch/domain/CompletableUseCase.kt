@@ -2,14 +2,14 @@ package com.viinsoft.cleanarch.domain
 
 import androidx.lifecycle.MutableLiveData
 import com.viinsoft.cleanarch.helper.SchedulerProvider
-import com.viinsoft.cleanarch.model.Result
+import com.viinsoft.cleanarch.model.UseCaseState
 import io.reactivex.Completable
 import io.reactivex.disposables.Disposable
 
 /**
  * Executes business logic synchronously or asynchronously using a [Scheduler] from Complete [Observable].
  */
-abstract class CompletableUseCase<P>(scheduler: SchedulerProvider) : RxUseCase<P, Unit>(scheduler){
+abstract class CompletableUseCase<P>(scheduler: SchedulerProvider) : RxUseCase<P, Unit>(scheduler) {
 
     private var disposable: Disposable? = null
 
@@ -21,25 +21,38 @@ abstract class CompletableUseCase<P>(scheduler: SchedulerProvider) : RxUseCase<P
      */
     protected abstract fun execute(parameters: P): Completable
 
-    override fun invoke(parameters: P, result: MutableLiveData<Result<Unit>>) {
+    override fun invoke(parameters: P, result: MutableLiveData<UseCaseState<Unit>>) {
 
         disposable = execute(parameters)
-            .doOnSubscribe { result.postValue(Result.loading()) }
+            .doOnSubscribe { result.postValue(UseCaseState.LoadContent) }
             .subscribeOn(scheduler.io())
             .observeOn(scheduler.ui())
             .subscribe({
-                result.postValue(Result.success(null))
+                result.postValue(UseCaseState.Complete(Unit))
             }, { e ->
-                result.postValue(Result.error(e as Exception))
+                result.postValue(UseCaseState.Error(e))
             })
     }
 
-    override fun invokeSync(parameters: P): Result<Unit> {
+    override fun invoke(parameters: P, result: (UseCaseState<Unit>) -> Unit) {
+
+        disposable = execute(parameters)
+            .doOnSubscribe { result.invoke(UseCaseState.LoadContent) }
+            .subscribeOn(scheduler.io())
+            .observeOn(scheduler.ui())
+            .subscribe({
+                result.invoke(UseCaseState.Complete(Unit))
+            }, { e ->
+                result.invoke(UseCaseState.Error(e))
+            })
+    }
+
+    override fun invokeSync(parameters: P): UseCaseState<Unit> {
         val e = execute(parameters).blockingGet()
         return if (e == null) {
-            Result.success(null)
+            UseCaseState.Complete(Unit)
         } else {
-            Result.error((e as Exception?)!!)
+            UseCaseState.Error(e)
         }
     }
 
