@@ -4,5 +4,5 @@ import javax.inject.Qualifier
 
 @Qualifier
 @Retention(AnnotationRetention.RUNTIME)
-annotation class FragmentArg {
+annotation class FragmentArgs {
 }
