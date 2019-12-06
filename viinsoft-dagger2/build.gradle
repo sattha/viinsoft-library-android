@@ -11,12 +11,11 @@ apply plugin: 'com.github.dcendents.android-maven'
 group='com.github.sattha'
 
 android {
-    compileSdkVersion 28
-
+    compileSdkVersion rootProject.ext.targetSdkVersion
 
     defaultConfig {
-        minSdkVersion 17
-        targetSdkVersion 28
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
 
@@ -39,9 +38,9 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'androidx.core:core-ktx:1.0.2'
+    implementation "androidx.appcompat:appcompat:$anroidXAppCompatVersion"
+    implementation "androidx.core:core-ktx:$anroidXCoreVersion"
 
     // DI
     implementation "com.google.dagger:dagger:$dagger2Version"
@@ -49,8 +48,7 @@ dependencies {
     kapt "com.google.dagger:dagger-android-processor:$dagger2Version"
     kapt "com.google.dagger:dagger-compiler:$dagger2Version"
 
-    implementation 'androidx.appcompat:appcompat:1.0.2'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidXJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidXEspressoVersion"
 }

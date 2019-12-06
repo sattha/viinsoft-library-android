@@ -1,16 +1,14 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    apply from: rootProject.file("version.gradle")
-
-    ext.kotlin_version = '1.3.31'
+    ext.kotlin_version = '1.3.50'
     repositories {
         google()
         jcenter()
         
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.4.2'
+        classpath 'com.android.tools.build:gradle:3.5.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
         // NOTE: Do not place your application dependencies here; they belong
@@ -28,4 +26,31 @@ allprojects {
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+
+ext {
+    // Setup
+    minSdkVersion = 15
+    targetSdkVersion = 29
+    compileSdkVersion = 29
+
+    anroidXCoreVersion = '1.1.0'
+    anroidXAppCompatVersion = '1.1.0'
+    constraintlayoutVersion = '1.1.3'
+
+    // Android Architecture Component
+    lifecycleVersion = '2.1.0'
+
+    // ReactiveX
+    rxJavaVersion = '2.2.12'
+    rxAndroidVersion = '2.1.1'
+
+    // DI
+    dagger2Version = '2.21'
+
+    // Testing
+    robolectricVersion = '4.2.1'
+    junitVersion = '4.12'
+    androidXJunitVersion = '1.1.1'
+    androidXEspressoVersion = '3.2.0'
 }
